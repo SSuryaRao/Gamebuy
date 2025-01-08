@@ -1,11 +1,51 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import './Navbar.css';
 
-const Navbar = () => {
+// Define the structure of the game data
+interface Game {
+  _id: string;
+  title: string;
+}
+
+const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Game[]>([]); // Type the results state
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  // Fetch search results in real-time
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const queryValue = e.target.value;
+    setQuery(queryValue);
+
+    if (queryValue.trim() === "") {
+      setResults([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/search-games?query=${queryValue}`);
+      if (response.ok) {
+        const data: Game[] = await response.json(); // Specify the expected response type
+        setResults(data);
+      } else {
+        setResults([]);
+      }
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  // Navigate to game details
+  const handleSelect = (id: string) => {
+    navigate(`/game/${id}`);
+    setQuery(""); // Clear the search bar
+    setResults([]); // Clear the dropdown
   };
 
   return (
@@ -21,6 +61,30 @@ const Navbar = () => {
           <h1 className="text-2xl font-bold tracking-wide">
             <Link to="/">PC Games</Link>
           </h1>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative flex-1 mx-4 lg:mx-8">
+          <input
+            type="text"
+            placeholder="Search for games..."
+            value={query}
+            onChange={handleSearch}
+            className="w-full px-4 py-2 text-black rounded-lg focus:outline-none"
+          />
+          {results.length > 0 && (
+            <ul className="absolute bg-white text-black w-full rounded-lg shadow-lg z-50 mt-2">
+              {results.map((game) => (
+                <li
+                  key={game._id}
+                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => handleSelect(game._id)}
+                >
+                  {game.title}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Hamburger Menu (Mobile View) */}

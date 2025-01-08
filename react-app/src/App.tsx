@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import About from "./components/About"; // Import About component
 import Contact from "./components/Contact"; // Import Contact component
 import Games from "./components/Games"; // Import Games component
+import GameDetails from "./components/GameDetails"; // Import GameDetails component
 
 const App: React.FC = () => {
   return (
@@ -31,6 +32,8 @@ const App: React.FC = () => {
             <Route path="/about" element={<About />} />
             {/* Route for Contact */}
             <Route path="/contact" element={<Contact />} />
+            {/* Route for Game Details */}
+            <Route path="/game/:id" element={<GameDetails />} />
           </Routes>
         </main>
         <Footer />
